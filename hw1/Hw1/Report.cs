@@ -7,12 +7,12 @@ public class Report : IReport
         report += "Транспорт:\n";
         foreach (var transport in data.GetTransport())
         {
-            report += $"    Имя: {transport.GetName()}, Номер: {transport.GetInventoryNumber()}\n";
+            report += $"    {transport.GetType()}: {transport.GetName()}, Номер: {transport.GetInventoryNumber()}\n";
         }
         report += "Вещи:\n";
         foreach (var thing in data.GetThings())
         {
-            report += $"    Имя: {thing.GetName()}, Номер: {thing.GetInventoryNumber()}\n";
+            report += $"    {thing.GetType()}: {thing.GetName()}, Номер: {thing.GetInventoryNumber()}\n";
         }
         return report;
     }

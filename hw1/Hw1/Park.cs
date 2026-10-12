@@ -8,7 +8,7 @@ public class Park(IServiceCenter serviceCenter)
     {
         if (_items.Any(x => x.GetInventoryNumber() == item.GetInventoryNumber()))
             return AddResult.DuplicateNumber;
-            
+
         if (!_serviceCenter.Check(item))
             Console.WriteLine("Проверка не пройдена");
 
@@ -25,8 +25,8 @@ public class Park(IServiceCenter serviceCenter)
         }
         return totalUsage;
     }
-    public List<IEasyForBeginners> GetEasyForBeginers() =>
-        [.. _items.OfType<IEasyForBeginners>().Where(x => x.IsEasyForBeginners())];
+    public List<InventoryItem> GetEasyForBeginers() =>
+        [.. _items.OfType<InventoryItem>().Where(x => x.IsEasyForBeginners())];
 
     public List<IInventoryItem> GetItems() => [.. _items];
     public ReportData GetData()
@@ -34,8 +34,8 @@ public class Park(IServiceCenter serviceCenter)
         ReportData data = new();
         data.SetTotalItems(_items.Count);
         data.SetTotalEnergy(GetEnergyUsage());
-        data.SetTransport([.. _items.OfType<ITransport>()]);
-        data.SetThings([.. _items.OfType<IThing>()]);
+        data.SetTransport([.. _items.OfType<Transport>()]);
+        data.SetThings([.. _items.OfType<Thing>()]);
         return data;
     }
     

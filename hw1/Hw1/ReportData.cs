@@ -2,17 +2,17 @@ public class ReportData()
 {
     private int totalItems;
     private double totalEnergy;
-    private List<ITransport> transport = [];
-    private List<IThing> things = [];
+    private List<Transport> transport = [];
+    private List<Thing> things = [];
     // Можно расширить
     
     public void SetTotalItems(int totalItems) { this.totalItems = totalItems; }
     public void SetTotalEnergy(double totalEnergy) { this.totalEnergy = totalEnergy; }
-    public void SetTransport(List<ITransport> transport) { this.transport = transport; }
-    public void SetThings(List<IThing> things) { this.things = things; }
+    public void SetTransport(List<Transport> transport) { this.transport = transport; }
+    public void SetThings(List<Thing> things) { this.things = things; }
 
     public int GetTotalItems() => totalItems;
     public double GetTotalEnergy() => totalEnergy;
-    public List<ITransport> GetTransport() => transport;
-    public List<IThing> GetThings() => things;  
+    public List<Transport> GetTransport() => transport;
+    public List<Thing> GetThings() => things;  
 }
