@@ -1,3 +1,7 @@
+using Hw1.Domain;
+
+namespace Hw1.Application;
+
 public class ShowItemsCommand : ICommand
 {
     public bool Execute(Park park, IReport report)

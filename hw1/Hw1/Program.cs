@@ -1,4 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Hw1.Domain;
+using Hw1.Application;
+
+namespace Hw1;
 
 public class Program {
     public static void Main(string[] args) {

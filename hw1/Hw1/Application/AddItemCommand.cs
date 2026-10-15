@@ -1,3 +1,5 @@
+namespace Hw1.Application;
+
 public class AddItemCommand(IInventoryItem item) : ICommand
 {
     public bool Execute(Park park, IReport report)

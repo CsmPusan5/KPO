@@ -1,3 +1,5 @@
+namespace Hw1.Domain;
+
 public abstract class InventoryItem : IInventoryItem, IEasyForBeginners
 {
     private readonly string _inventoryNumber;

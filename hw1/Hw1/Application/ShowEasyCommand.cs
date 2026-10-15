@@ -1,3 +1,7 @@
+using Hw1.Domain;
+
+namespace Hw1.Application;
+
 public class ShowEasyCommand : ICommand
 {
     public bool Execute(Park park, IReport report)

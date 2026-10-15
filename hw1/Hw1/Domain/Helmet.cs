@@ -1,3 +1,5 @@
+namespace Hw1.Domain;
+
 public class Helmet : Thing
 {
     public Helmet(string inventoryNumber, string name, int easyScore)

@@ -1,3 +1,5 @@
+namespace Hw1.Application;
+
 public class Report : IReport
 {
     private string report = "";

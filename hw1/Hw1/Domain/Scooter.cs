@@ -1,3 +1,5 @@
+namespace Hw1.Domain;
+
 public class Scooter : Transport, IEnergyConsumer
 {
     private readonly double _energyUsage;

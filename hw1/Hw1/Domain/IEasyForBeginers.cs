@@ -1,3 +1,5 @@
+namespace Hw1.Domain;
+
 public interface IEasyForBeginners
 {
     int GetEasyScore();

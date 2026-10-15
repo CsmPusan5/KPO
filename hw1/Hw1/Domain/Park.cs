@@ -1,3 +1,4 @@
+namespace Hw1.Domain;
 
 public class Park(IServiceCenter serviceCenter)
 {
@@ -29,14 +30,5 @@ public class Park(IServiceCenter serviceCenter)
         [.. _items.OfType<InventoryItem>().Where(x => x.IsEasyForBeginners())];
 
     public List<IInventoryItem> GetItems() => [.. _items];
-    public ReportData GetData()
-    {
-        ReportData data = new();
-        data.SetTotalItems(_items.Count);
-        data.SetTotalEnergy(GetEnergyUsage());
-        data.SetTransport([.. _items.OfType<Transport>()]);
-        data.SetThings([.. _items.OfType<Thing>()]);
-        return data;
-    }
     
 }

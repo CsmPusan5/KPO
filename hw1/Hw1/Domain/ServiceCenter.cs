@@ -1,3 +1,4 @@
+namespace Hw1.Domain;
 
 public class ServiceCenter : IServiceCenter
 {

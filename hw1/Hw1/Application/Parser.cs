@@ -1,4 +1,7 @@
 using System.Globalization;
+using Hw1.Domain;
+
+namespace Hw1.Application;
 
 public class Parser : IParser
 {
