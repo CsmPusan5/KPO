@@ -1,3 +1,5 @@
+namespace Hw1.Domain;
+
 public class ChargeBattery : Thing, IEnergyConsumer
 {
     private readonly double _energyUsage;

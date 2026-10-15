@@ -11,7 +11,7 @@ public class Park(IServiceCenter serviceCenter)
             return AddResult.DuplicateNumber;
 
         if (!_serviceCenter.Check(item))
-            Console.WriteLine("Проверка не пройдена");
+            return AddResult.Rejected;
 
         _items.Add(item);
         Console.WriteLine($"Добавлено: {item.GetName()}");
@@ -26,7 +26,7 @@ public class Park(IServiceCenter serviceCenter)
         }
         return totalUsage;
     }
-    public List<InventoryItem> GetEasyForBeginers() =>
+    public List<InventoryItem> GetEasyForBeginners() =>
         [.. _items.OfType<InventoryItem>().Where(x => x.IsEasyForBeginners())];
 
     public List<IInventoryItem> GetItems() => [.. _items];
