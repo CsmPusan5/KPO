@@ -26,9 +26,10 @@ public class Park(IServiceCenter serviceCenter)
         }
         return totalUsage;
     }
-    public List<InventoryItem> GetEasyForBeginners() =>
+    public List<IInventoryItem> GetEasyForBeginners() =>
         [.. _items.OfType<InventoryItem>().Where(x => x.IsEasyForBeginners())];
 
     public List<IInventoryItem> GetItems() => [.. _items];
-    
+    public List<Transport> GetTransport() => [.. _items.OfType<Transport>().ToList<Transport>()];
+    public List<Thing> GetThings() => [.. _items.OfType<Thing>().ToList<Thing>()];
 }

@@ -11,27 +11,12 @@ public class Program {
         services.AddTransient<IReport, Report>();
         services.AddTransient<IParser, Parser>();
         services.AddSingleton(sp => new Park(sp.GetRequiredService<IServiceCenter>()));
-        
+        services.AddTransient<App>();
+
         var provider = services.BuildServiceProvider();
 
-        var park = provider.GetRequiredService<Park>();
-        var parser = provider.GetRequiredService<IParser>();
-        var report = provider.GetRequiredService<IReport>();
+        var app = provider.GetRequiredService<App>();
 
-        Console.WriteLine("ВышКат. Введите 'help' для списка команд.");
-        while (true) {
-            Console.Write("> ");
-            string? input = Console.ReadLine();
-            if (input is null) break;
-            try
-            {
-                ICommand cmd = parser.Parse(input);
-                if (!cmd.Execute(park, report)) break;
-            }
-            catch (ParseException e)
-            {
-                Console.WriteLine($"Ошибка: {e}");
-            }
-        }
+        app.Run();
     }
 }
