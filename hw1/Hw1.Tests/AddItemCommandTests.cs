@@ -8,18 +8,50 @@ namespace Hw1.Tests;
 public class AddItemCommandTests
 {
     [Theory]
-    [InlineData(AddResult.Accepted)]
-    [InlineData(AddResult.Rejected)]
-    [InlineData(AddResult.DuplicateNumber)]
-    public void Execute_AnyAddResult_ShouldReturnTrue(AddResult result)
+    [InlineData(true, "Принято")] 
+    [InlineData(false, "Техосмотр не пройден")]
+    public void AddItemCommand_Execute_PrintsCorrectTechInspectionResult(bool serviceCenterResult, string expectedText)
     {
         // Arrange
-        var park = Substitute.For<Park>(Substitute.For<IServiceCenter>());
-        park.AddItem(Arg.Any<IInventoryItem>()).Returns(result);
-        var report = Substitute.For<IReport>();
-        var command = new AddItemCommand(new Bike("001", "Bike", 7));
+        var serviceCenter = Substitute.For<IServiceCenter>();
+        serviceCenter.Check(Arg.Any<IInventoryItem>()).Returns(serviceCenterResult);
+        
+        var park = new Park(serviceCenter); 
+        var item = new Bike("001", "Bike", 3);
+        var command = new AddItemCommand(item);
+        var consoleOutput = new StringWriter();
+        Console.SetOut(consoleOutput);
 
-        // Act & Assert
-        Assert.True(command.Execute(park, report));
+        // Act
+        command.Execute(park, Substitute.For<IReport>());
+
+        // Assert
+        Assert.Contains(expectedText, consoleOutput.ToString());
+        
+        Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
+    }
+
+    [Fact]
+    public void AddItemCommand_Execute_PrintsDuplicateError()
+    {
+        // Arrange
+        var serviceCenter = Substitute.For<IServiceCenter>();
+        serviceCenter.Check(Arg.Any<IInventoryItem>()).Returns(true);
+        var park = new Park(serviceCenter); 
+        
+        park.AddItem(new Bike("001", "Bike1", 7)); 
+        
+        var command = new AddItemCommand(new Bike("001", "Bike2", 8));
+
+        var consoleOutput = new StringWriter();
+        Console.SetOut(consoleOutput);
+
+        // Act
+        command.Execute(park, Substitute.For<IReport>());
+
+        // Assert
+        Assert.Contains("Дубликат номера", consoleOutput.ToString());
+        
+        Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
     }
 }
