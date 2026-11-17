@@ -26,7 +26,8 @@ public sealed class UpdateEvaluationUseCase
         var rubricator = await _rubricators.GetAsync(ct);
         var criterion = rubricator.GetCriterion(evaluation.CriterionId);
         if (cmd.NewScore is not null) {
-            evaluation.ChangeScore(new Score(cmd.NewScore), criterion.MaxScore);
+            decimal newScore = (decimal)cmd.NewScore;
+            evaluation.ChangeScore(new Score(newScore), criterion.MaxScore);
         }
         evaluation.ChangeComment(cmd.Comment);
 
