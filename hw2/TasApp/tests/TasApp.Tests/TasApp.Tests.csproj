@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\TasApp.Domain\TasApp.Domain.csproj" />
     <ProjectReference Include="..\..\src\TasApp.Application\TasApp.Application.csproj" />
+    <ProjectReference Include="..\..\src\TasApp.Infrastructure\TasApp.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
