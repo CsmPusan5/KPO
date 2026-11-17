@@ -8,6 +8,13 @@ using TasApp.Domain.Services;
 using TasApp.Infrastructure.Export;
 using TasApp.Infrastructure.Persistence;
 
+var isDemo = args.Length > 0 && args[0] == "demo";
+
+var dataDir = isDemo ? "data/demo" : "data";
+
+if (isDemo && Directory.Exists(dataDir))
+    Directory.Delete(dataDir, recursive: true);
+
 var services = new ServiceCollection();
 
 // --- Domain services ---
@@ -50,4 +57,12 @@ services.AddSingleton<ConsoleController>();
 var provider = services.BuildServiceProvider();
 var controller = provider.GetRequiredService<ConsoleController>();
 
-await controller.RunAsync(args);
+try
+{
+    await controller.RunAsync(args);
+}
+catch (Exception ex)
+{
+    Console.Error.WriteLine($"Критическая ошибка: {ex.Message}");
+    Environment.ExitCode = 1;
+}

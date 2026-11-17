@@ -254,8 +254,7 @@ public sealed class ConsoleController
 
     private async Task RunDemoAsync()
     {
-        System.Console.WriteLine();
-        System.Console.WriteLine("=== Демо: студенты и критерии -> оценки -> итог -> экспорт ===");
+        System.Console.WriteLine("=== Демо ===");
 
         var studentA = await _facade.AddStudentAsync("Иван");
         var studentB = await _facade.AddStudentAsync("Пётр");
@@ -276,9 +275,8 @@ public sealed class ConsoleController
         System.Console.WriteLine($"Итог Ивана: {scoreA.Value:0.##}");
         System.Console.WriteLine($"Итог Петра: {scoreB.Value:0.##}");
 
-        await _facade.ExportFinalScoreAsync(studentA, "data/demo-ivan.csv");
-        await _facade.ExportFinalScoreAsync(studentB, "data/demo-petr.csv");
-        System.Console.WriteLine("Итоги экспортированы в data/demo-*.csv");
+        await _facade.ExportAllFinalScoresAsync("data/demo/all.csv");
+        System.Console.WriteLine("Итоги всех студентов экспортированы в data/demo/all.csv");
 
         System.Console.WriteLine("=== Демо завершено ===");
     }
