@@ -14,8 +14,8 @@ public sealed class UpdateEvaluationUseCase
         IEvaluationRepository evaluations,
         IRubricatorRepository rubricators)
     {
-        _evaluations = evaluations;
-        _rubricators = rubricators;
+        _evaluations = evaluations ?? throw new ArgumentNullException(nameof(evaluations));
+        _rubricators = rubricators ?? throw new ArgumentNullException(nameof(rubricators));
     }
 
     public async Task ExecuteAsync(UpdateEvaluationCommand cmd, CancellationToken ct = default)
@@ -23,13 +23,17 @@ public sealed class UpdateEvaluationUseCase
         var evaluation = await _evaluations.GetByIdAsync(new EvaluationId(cmd.EvaluationId), ct)
                          ?? throw new EvaluationNotFoundException(cmd.EvaluationId);
 
-        var rubricator = await _rubricators.GetAsync(ct);
-        var criterion = rubricator.GetCriterion(evaluation.CriterionId);
-        if (cmd.NewScore is not null) {
-            decimal newScore = (decimal)cmd.NewScore;
-            evaluation.ChangeScore(new Score(newScore), criterion.MaxScore);
+        if (cmd.NewScore is { } newScoreValue)
+        {
+            var rubricator = await _rubricators.GetAsync(ct);
+            var criterion = rubricator.GetCriterion(evaluation.CriterionId);
+            evaluation.ChangeScore(new Score(newScoreValue), criterion.MaxScore);
         }
-        evaluation.ChangeComment(cmd.Comment);
+
+        if (cmd.ChangeComment)
+        {
+            evaluation.ChangeComment(cmd.Comment);
+        }
 
         await _evaluations.UpdateAsync(evaluation, ct);
     }

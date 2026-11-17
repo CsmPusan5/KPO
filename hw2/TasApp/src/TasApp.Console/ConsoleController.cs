@@ -4,7 +4,7 @@ using TasApp.Application.Exceptions;
 using TasApp.Application.Facades;
 using TasApp.Domain.Exceptions;
 
-namespace TasApp.Console;
+namespace TasApp.Cli;
 
 public sealed class ConsoleController
 {
@@ -29,8 +29,8 @@ public sealed class ConsoleController
         while (true)
         {
             PrintMenu();
-            System.Console.Write("> ");
-            var choice = (System.Console.ReadLine() ?? string.Empty).Trim();
+            Console.Write("> ");
+            var choice = (Console.ReadLine() ?? string.Empty).Trim();
 
             try
             {
@@ -73,23 +73,23 @@ public sealed class ConsoleController
 
     private static void PrintMenu()
     {
-        System.Console.WriteLine("1.  Добавить студента");
-        System.Console.WriteLine("2.  Переименовать студента");
-        System.Console.WriteLine("3.  Добавить критерий");
-        System.Console.WriteLine("4.  Изменить критерий");
-        System.Console.WriteLine("5.  Удалить критерий");
-        System.Console.WriteLine("6.  Настроить рубрикатор (заменить целиком)");
-        System.Console.WriteLine("7.  Список студентов");
-        System.Console.WriteLine("8.  Список критериев");
-        System.Console.WriteLine("9.  Выставить оценку");
-        System.Console.WriteLine("10. Исправить оценку");
-        System.Console.WriteLine("11. Отменить оценку");
-        System.Console.WriteLine("12. Оценки студента");
-        System.Console.WriteLine("13. Итог студента");
-        System.Console.WriteLine("14. Экспорт итога в CSV");
-        System.Console.WriteLine("15. Экспорт итогов всех студентов");
-        System.Console.WriteLine("16. Демо-сценарий");
-        System.Console.WriteLine("0.  Выход");
+        Console.WriteLine("1.  Добавить студента");
+        Console.WriteLine("2.  Переименовать студента");
+        Console.WriteLine("3.  Добавить критерий");
+        Console.WriteLine("4.  Изменить критерий");
+        Console.WriteLine("5.  Удалить критерий");
+        Console.WriteLine("6.  Настроить рубрикатор (заменить целиком)");
+        Console.WriteLine("7.  Список студентов");
+        Console.WriteLine("8.  Список критериев");
+        Console.WriteLine("9.  Выставить оценку");
+        Console.WriteLine("10. Исправить оценку");
+        Console.WriteLine("11. Отменить оценку");
+        Console.WriteLine("12. Оценки студента");
+        Console.WriteLine("13. Итог студента");
+        Console.WriteLine("14. Экспорт итога в CSV");
+        Console.WriteLine("15. Экспорт итогов всех студентов");
+        Console.WriteLine("16. Демо-сценарий");
+        Console.WriteLine("0.  Выход");
     }
 
     // --- Команды ---
@@ -100,7 +100,7 @@ public sealed class ConsoleController
         if (name is null) { PrintCancelled(); return; }
 
         await _facade.AddStudentAsync(name);
-        System.Console.WriteLine($"Создан студент: {name}");
+        Console.WriteLine($"Создан студент: {name}");
     }
 
     private async Task AddCriterionAsync()
@@ -117,27 +117,27 @@ public sealed class ConsoleController
         if (weight.Value <= 0) { WriteError("Вес должен быть больше нуля"); return; }
 
         await _facade.AddCriterionAsync(name, max.Value, weight.Value);
-        System.Console.WriteLine($"Создан критерий: {name} (max={max}, weight={weight})");
+        Console.WriteLine($"Создан критерий: {name} (max={max}, weight={weight})");
     }
 
     private async Task ListStudentsAsync()
     {
         var students = await _facade.ListStudentsAsync();
-        if (students.Count == 0) { System.Console.WriteLine("Студентов нет"); return; }
+        if (students.Count == 0) { Console.WriteLine("Студентов нет"); return; }
 
         for (var i = 0; i < students.Count; i++)
-            System.Console.WriteLine($"  {i + 1}. {students[i].Name}");
+            Console.WriteLine($"  {i + 1}. {students[i].Name}");
     }
 
     private async Task ListCriteriaAsync()
     {
         var criteria = await _facade.ListCriteriaAsync();
-        if (criteria.Count == 0) { System.Console.WriteLine("Критериев нет"); return; }
+        if (criteria.Count == 0) { Console.WriteLine("Критериев нет"); return; }
 
         for (var i = 0; i < criteria.Count; i++)
         {
             var c = criteria[i];
-            System.Console.WriteLine($"  {i + 1}. {c.Name} (max={c.MaxScore}, weight={c.Weight})");
+            Console.WriteLine($"  {i + 1}. {c.Name} (max={c.MaxScore}, weight={c.Weight})");
         }
     }
 
@@ -161,7 +161,7 @@ public sealed class ConsoleController
         var comment = ReadOptional("Комментарий (Enter — без комментария)");
 
         await _facade.AssignEvaluationAsync(student.Id, criterion.Id, score.Value, comment);
-        System.Console.WriteLine($"Создана оценка: {student.Name} / {criterion.Name} = {score}");
+        Console.WriteLine($"Создана оценка: {student.Name} / {criterion.Name} = {score}");
     }
 
     private async Task UpdateEvaluationAsync()
@@ -172,7 +172,7 @@ public sealed class ConsoleController
         var evaluation = await SelectEvaluationAsync(student.Id);
         if (evaluation is null) return;
 
-        System.Console.WriteLine($"Текущая оценка: {evaluation.CriterionName} = {evaluation.Score}");
+        Console.WriteLine($"Текущая оценка: {evaluation.CriterionName} = {evaluation.Score}");
 
         var newScore = ReadOptionalDecimal("Новый балл (Enter — не менять)");
 
@@ -182,21 +182,21 @@ public sealed class ConsoleController
         string? newComment = null;
         if (changeComment)
         {
-            System.Console.Write("Новый комментарий (пусто — очистить): ");
-            var raw = System.Console.ReadLine();
+            Console.Write("Новый комментарий (пусто — очистить): ");
+            var raw = Console.ReadLine();
             newComment = string.IsNullOrWhiteSpace(raw) ? null : raw.Trim();
         }
 
         if (newScore is null && !changeComment)
         {
-            System.Console.WriteLine("Ничего не изменено");
+            Console.WriteLine("Ничего не изменено");
             return;
         }
 
         await _facade.UpdateEvaluationAsync(evaluation.Id, newScore, newComment, changeComment);
 
         var scoreText = newScore is { } s ? s.ToString("0.##") : evaluation.Score.ToString("0.##");
-        System.Console.WriteLine($"Оценка обновлена: {evaluation.CriterionName} = {scoreText}");
+        Console.WriteLine($"Оценка обновлена: {evaluation.CriterionName} = {scoreText}");
     }
 
     private async Task DeleteEvaluationAsync()
@@ -208,7 +208,7 @@ public sealed class ConsoleController
         if (evaluation is null) return;
 
         await _facade.DeleteEvaluationAsync(evaluation.Id);
-        System.Console.WriteLine($"Оценка отменена: {student.Name} / {evaluation.CriterionName}");
+        Console.WriteLine($"Оценка отменена: {student.Name} / {evaluation.CriterionName}");
     }
 
     private async Task ListEvaluationsAsync()
@@ -217,14 +217,14 @@ public sealed class ConsoleController
         if (student is null) return;
 
         var evaluations = await _facade.ListEvaluationsAsync(student.Id);
-        if (evaluations.Count == 0) { System.Console.WriteLine("Оценок нет"); return; }
+        if (evaluations.Count == 0) { Console.WriteLine("Оценок нет"); return; }
 
-        System.Console.WriteLine($"Оценки студента {student.Name}:");
+        Console.WriteLine($"Оценки студента {student.Name}:");
         for (var i = 0; i < evaluations.Count; i++)
         {
             var e = evaluations[i];
             var comment = string.IsNullOrEmpty(e.Comment) ? string.Empty : $"  // {e.Comment}";
-            System.Console.WriteLine($"  {i + 1}. {e.CriterionName}: {e.Score}{comment}");
+            Console.WriteLine($"  {i + 1}. {e.CriterionName}: {e.Score}{comment}");
         }
     }
 
@@ -234,7 +234,7 @@ public sealed class ConsoleController
         if (student is null) return;
 
         var dto = await _facade.CalculateFinalScoreAsync(student.Id);
-        System.Console.WriteLine($"{student.Name}: {dto.Value:0.##}  (стратегия: {dto.Strategy})");
+        Console.WriteLine($"{student.Name}: {dto.Value:0.##}  (стратегия: {dto.Strategy})");
     }
 
     private async Task ExportFinalScoreAsync()
@@ -248,18 +248,18 @@ public sealed class ConsoleController
         var dto = await _facade.CalculateFinalScoreAsync(student.Id);
         await _facade.ExportFinalScoreAsync(student.Id, path);
 
-        System.Console.WriteLine($"Экспортирован итог: {student.Name} = {dto.Value:0.##} → {path}");
+        Console.WriteLine($"Экспортирован итог: {student.Name} = {dto.Value:0.##} → {path}");
     }
 
     // --- Демо ---
 
     private async Task RunDemoAsync()
     {
-        System.Console.WriteLine("=== Демо ===");
+        Console.WriteLine("=== Демо ===");
 
         var studentA = await _facade.AddStudentAsync("Иван");
         var studentB = await _facade.AddStudentAsync("Пётр");
-        System.Console.WriteLine("Студенты: Иван, Пётр");
+        Console.WriteLine("Студенты: Иван, Пётр");
 
         var criteria = await _facade.SetupRubricatorAsync(
         [
@@ -268,23 +268,23 @@ public sealed class ConsoleController
         ]);
         var criterionHw = criteria.First(c => c.Name == "ДЗ").Id;
         var criterionExam = criteria.First(c => c.Name == "Экзамен").Id;
-        System.Console.WriteLine("Критерии: ДЗ (max=10, w=0.4), Экзамен (max=10, w=0.6)");
+        Console.WriteLine("Критерии: ДЗ (max=10, w=0.4), Экзамен (max=10, w=0.6)");
 
         await _facade.AssignEvaluationAsync(studentA, criterionHw, 8m, "хорошо");
         await _facade.AssignEvaluationAsync(studentA, criterionExam, 9m, null);
         await _facade.AssignEvaluationAsync(studentB, criterionHw, 6m, null);
         await _facade.AssignEvaluationAsync(studentB, criterionExam, 7m, null);
-        System.Console.WriteLine("Оценки выставлены");
+        Console.WriteLine("Оценки выставлены");
 
         var scoreA = await _facade.CalculateFinalScoreAsync(studentA);
         var scoreB = await _facade.CalculateFinalScoreAsync(studentB);
-        System.Console.WriteLine($"Итог Ивана: {scoreA.Value:0.##}");
-        System.Console.WriteLine($"Итог Петра: {scoreB.Value:0.##}");
+        Console.WriteLine($"Итог Ивана: {scoreA.Value:0.##}");
+        Console.WriteLine($"Итог Петра: {scoreB.Value:0.##}");
 
         await _facade.ExportAllFinalScoresAsync("data/demo/all.csv");
-        System.Console.WriteLine("Итоги всех студентов экспортированы в data/demo/all.csv");
+        Console.WriteLine("Итоги всех студентов экспортированы в data/demo/all.csv");
 
-        System.Console.WriteLine("=== Демо завершено ===");
+        Console.WriteLine("=== Демо завершено ===");
     }
 
     // --- Select helpers ---
@@ -292,11 +292,11 @@ public sealed class ConsoleController
     private async Task<StudentDto?> SelectStudentAsync()
     {
         var students = await _facade.ListStudentsAsync();
-        if (students.Count == 0) { System.Console.WriteLine("Студентов нет"); return null; }
+        if (students.Count == 0) { Console.WriteLine("Студентов нет"); return null; }
 
-        System.Console.WriteLine("Выберите студента:");
+        Console.WriteLine("Выберите студента:");
         for (var i = 0; i < students.Count; i++)
-            System.Console.WriteLine($"  {i + 1}. {students[i].Name}");
+            Console.WriteLine($"  {i + 1}. {students[i].Name}");
 
         var idx = ReadOptionalInt("Номер", 1, students.Count);
         if (idx is null) { PrintCancelled(); return null; }
@@ -307,13 +307,13 @@ public sealed class ConsoleController
     private async Task<CriterionDto?> SelectCriterionAsync()
     {
         var criteria = await _facade.ListCriteriaAsync();
-        if (criteria.Count == 0) { System.Console.WriteLine("Критериев нет"); return null; }
+        if (criteria.Count == 0) { Console.WriteLine("Критериев нет"); return null; }
 
-        System.Console.WriteLine("Выберите критерий:");
+        Console.WriteLine("Выберите критерий:");
         for (var i = 0; i < criteria.Count; i++)
         {
             var c = criteria[i];
-            System.Console.WriteLine($"  {i + 1}. {c.Name} (max={c.MaxScore})");
+            Console.WriteLine($"  {i + 1}. {c.Name} (max={c.MaxScore})");
         }
 
         var idx = ReadOptionalInt("Номер", 1, criteria.Count);
@@ -325,14 +325,14 @@ public sealed class ConsoleController
     private async Task<EvaluationDto?> SelectEvaluationAsync(Guid studentId)
     {
         var evaluations = await _facade.ListEvaluationsAsync(studentId);
-        if (evaluations.Count == 0) { System.Console.WriteLine("Оценок нет"); return null; }
+        if (evaluations.Count == 0) { Console.WriteLine("Оценок нет"); return null; }
 
-        System.Console.WriteLine("Выберите оценку:");
+        Console.WriteLine("Выберите оценку:");
         for (var i = 0; i < evaluations.Count; i++)
         {
             var e = evaluations[i];
             var comment = string.IsNullOrEmpty(e.Comment) ? string.Empty : $"  // {e.Comment}";
-            System.Console.WriteLine($"  {i + 1}. {e.CriterionName}: {e.Score}{comment}");
+            Console.WriteLine($"  {i + 1}. {e.CriterionName}: {e.Score}{comment}");
         }
 
         var idx = ReadOptionalInt("Номер", 1, evaluations.Count);
@@ -345,8 +345,8 @@ public sealed class ConsoleController
 
     private static string? ReadOptional(string prompt)
     {
-        System.Console.Write($"{prompt} (Enter — отмена): ");
-        var input = System.Console.ReadLine();
+        Console.Write($"{prompt} (Enter — отмена): ");
+        var input = Console.ReadLine();
         return string.IsNullOrWhiteSpace(input) ? null : input.Trim();
     }
 
@@ -391,14 +391,14 @@ public sealed class ConsoleController
 
     // --- Вывод ---
 
-    private static void PrintCancelled() => System.Console.WriteLine("Отменено");
+    private static void PrintCancelled() => Console.WriteLine("Отменено");
 
     private static void WriteError(string message)
     {
-        var prev = System.Console.ForegroundColor;
-        System.Console.ForegroundColor = ConsoleColor.Red;
-        System.Console.WriteLine(message);
-        System.Console.ForegroundColor = prev;
+        var prev = Console.ForegroundColor;
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(message);
+        Console.ForegroundColor = prev;
     }
 
     private async Task RenameStudentAsync()
@@ -410,7 +410,7 @@ public sealed class ConsoleController
         if (newName is null) { PrintCancelled(); return; }
 
         await _facade.RenameStudentAsync(student.Id, newName);
-        System.Console.WriteLine($"Студент переименован: {newName}");
+        Console.WriteLine($"Студент переименован: {newName}");
     }
 
     private async Task UpdateCriterionAsync()
@@ -430,7 +430,7 @@ public sealed class ConsoleController
         if (newWeight.Value <= 0) { WriteError("Вес должен быть > 0"); return; }
 
         await _facade.UpdateCriterionAsync(criterion.Id, newName, newMax.Value, newWeight.Value);
-        System.Console.WriteLine($"Критерий обновлён: {newName}");
+        Console.WriteLine($"Критерий обновлён: {newName}");
     }
 
     private async Task RemoveCriterionAsync()
@@ -442,7 +442,7 @@ public sealed class ConsoleController
         if (confirm is not ("y" or "Y")) { PrintCancelled(); return; }
 
         await _facade.RemoveCriterionAsync(criterion.Id);
-        System.Console.WriteLine($"Критерий удалён: {criterion.Name}");
+        Console.WriteLine($"Критерий удалён: {criterion.Name}");
     }
 
     private async Task ExportAllFinalScoresAsync()
@@ -451,9 +451,9 @@ public sealed class ConsoleController
         if (path is null) { PrintCancelled(); return; }
 
         var count = await _facade.ExportAllFinalScoresAsync(path);
-        if (count == 0) { System.Console.WriteLine("Нет студентов для экспорта"); return; }
+        if (count == 0) { Console.WriteLine("Нет студентов для экспорта"); return; }
 
-        System.Console.WriteLine($"Экспортировано {count} итогов → {path}");
+        Console.WriteLine($"Экспортировано {count} итогов → {path}");
     }
 
     private async Task SetupRubricatorAsync()
@@ -465,7 +465,7 @@ public sealed class ConsoleController
             if (confirm is not ("y" or "Y")) { PrintCancelled(); return; }
         }
 
-        System.Console.WriteLine("Введите критерии. Пустое название — завершить ввод.");
+        Console.WriteLine("Введите критерии. Пустое название — завершить ввод.");
         var drafts = new List<SetupCriterionCommand>();
 
         while (true)
@@ -484,12 +484,12 @@ public sealed class ConsoleController
             drafts.Add(new SetupCriterionCommand(name, max.Value, weight.Value));
         }
 
-        if (drafts.Count == 0) { System.Console.WriteLine("Рубрикатор не изменён"); return; }
+        if (drafts.Count == 0) { Console.WriteLine("Рубрикатор не изменён"); return; }
 
         var created = await _facade.SetupRubricatorAsync(drafts);
 
-        System.Console.WriteLine($"Рубрикатор настроен: {created.Count} критериев");
+        Console.WriteLine($"Рубрикатор настроен: {created.Count} критериев");
         foreach (var c in created)
-            System.Console.WriteLine($"  {c.Name} (max={c.MaxScore}, w={c.Weight})");
+            Console.WriteLine($"  {c.Name} (max={c.MaxScore}, w={c.Weight})");
     }
 }

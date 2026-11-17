@@ -19,7 +19,7 @@ public sealed class RubricatorBuilder
     public Rubricator Build()
     {
         var duplicates = _drafts
-            .GroupBy(d => d.Name)   // CriterionName сравнивается по значению
+            .GroupBy(d => d.Name)
             .Where(g => g.Count() > 1)
             .Select(g => g.Key.Value)
             .ToList();
