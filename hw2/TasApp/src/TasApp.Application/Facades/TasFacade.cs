@@ -19,6 +19,10 @@ public sealed class TasFacade
     private readonly ListEvaluationsUseCase _listEvaluations;
     private readonly CalculateFinalScoreUseCase _calculateFinalScore;
     private readonly ExportFinalScoreUseCase _exportFinalScore;
+    private readonly RenameStudentUseCase _renameStudent;
+    private readonly UpdateCriterionUseCase _updateCriterion;
+    private readonly RemoveCriterionUseCase _removeCriterion;
+    private readonly ExportAllFinalScoresUseCase _exportAll;
 
     public TasFacade(
         AddStudentUseCase addStudent,
@@ -30,7 +34,11 @@ public sealed class TasFacade
         DeleteEvaluationUseCase deleteEvaluation,
         ListEvaluationsUseCase listEvaluations,
         CalculateFinalScoreUseCase calculateFinalScore,
-        ExportFinalScoreUseCase exportFinalScore)
+        ExportFinalScoreUseCase exportFinalScore,
+        RenameStudentUseCase renameStudentUseCase,
+        UpdateCriterionUseCase updateCriterionUseCase,
+        RemoveCriterionUseCase removeCriterionUseCase,
+        ExportAllFinalScoresUseCase exportAllFinalScoresUseCase)
     {
         _addStudent = addStudent;
         _addCriterion = addCriterion;
@@ -42,6 +50,10 @@ public sealed class TasFacade
         _listEvaluations = listEvaluations;
         _calculateFinalScore = calculateFinalScore;
         _exportFinalScore = exportFinalScore;
+        _renameStudent = renameStudentUseCase;
+        _updateCriterion = updateCriterionUseCase;
+        _removeCriterion = removeCriterionUseCase;
+        _exportAll = exportAllFinalScoresUseCase;
     }
 
     // Наружу отдаётся Guid, а не доменный VO: Facade - граница Application-слоя.
@@ -84,4 +96,16 @@ public sealed class TasFacade
 
     public Task ExportFinalScoreAsync(Guid studentId, string filePath, CancellationToken ct = default)
         => _exportFinalScore.ExecuteAsync(new ExportFinalScoreCommand(studentId, filePath), ct);
+    
+    public Task RenameStudentAsync(Guid studentId, string newName, CancellationToken ct = default)
+       => _renameStudent.ExecuteAsync(new RenameStudentCommand(studentId, newName), ct);
+
+    public Task UpdateCriterionAsync(Guid criterionId, string newName, decimal newMax, decimal newWeight, CancellationToken ct = default)
+        => _updateCriterion.ExecuteAsync(new UpdateCriterionCommand(criterionId, newName, newMax, newWeight), ct);
+
+    public Task RemoveCriterionAsync(Guid criterionId, CancellationToken ct = default)
+        => _removeCriterion.ExecuteAsync(new RemoveCriterionCommand(criterionId), ct);
+    
+    public Task<int> ExportAllFinalScoresAsync(string filePath, CancellationToken ct = default)
+      => _exportAll.ExecuteAsync(filePath, ct);
 }

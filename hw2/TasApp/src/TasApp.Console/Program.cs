@@ -36,6 +36,10 @@ services.AddTransient<DeleteEvaluationUseCase>();
 services.AddTransient<ListEvaluationsUseCase>();
 services.AddTransient<CalculateFinalScoreUseCase>();
 services.AddTransient<ExportFinalScoreUseCase>();
+services.AddTransient<RenameStudentUseCase>();
+services.AddTransient<UpdateCriterionUseCase>();
+services.AddTransient<RemoveCriterionUseCase>();
+services.AddTransient<ExportAllFinalScoresUseCase>();
 
 // --- Facade ---
 services.AddTransient<TasFacade>();

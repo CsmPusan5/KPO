@@ -36,16 +36,20 @@ public sealed class ConsoleController
                 switch (choice)
                 {
                     case "1": await AddStudentAsync(); break;
-                    case "2": await AddCriterionAsync(); break;
-                    case "3": await ListStudentsAsync(); break;
-                    case "4": await ListCriteriaAsync(); break;
-                    case "5": await AssignEvaluationAsync(); break;
-                    case "6": await UpdateEvaluationAsync(); break;
-                    case "7": await DeleteEvaluationAsync(); break;
-                    case "8": await ListEvaluationsAsync(); break;
-                    case "9": await CalculateFinalScoreAsync(); break;
-                    case "10": await ExportFinalScoreAsync(); break;
-                    case "11": await RunDemoAsync(); break;
+                    case "2": await RenameStudentAsync(); break;
+                    case "3": await AddCriterionAsync(); break;
+                    case "4": await UpdateCriterionAsync(); break;
+                    case "5": await RemoveCriterionAsync(); break;
+                    case "6": await ListStudentsAsync(); break;
+                    case "7": await ListCriteriaAsync(); break;
+                    case "8": await AssignEvaluationAsync(); break;
+                    case "9": await UpdateEvaluationAsync(); break;
+                    case "10": await DeleteEvaluationAsync(); break;
+                    case "11": await ListEvaluationsAsync(); break;
+                    case "12": await CalculateFinalScoreAsync(); break;
+                    case "13": await ExportFinalScoreAsync(); break;
+                    case "14": await ExportAllFinalScoresAsync(); break;
+                    case "15": await RunDemoAsync(); break;
                     case "0": return;
                     default: WriteError("Неизвестная команда"); break;
                 }
@@ -70,16 +74,20 @@ public sealed class ConsoleController
         System.Console.WriteLine();
         System.Console.WriteLine("=== ПОС: Преподавательская Оценка Студентов ===");
         System.Console.WriteLine("1.  Добавить студента");
-        System.Console.WriteLine("2.  Добавить критерий");
-        System.Console.WriteLine("3.  Список студентов");
-        System.Console.WriteLine("4.  Список критериев");
-        System.Console.WriteLine("5.  Выставить оценку");
-        System.Console.WriteLine("6.  Исправить оценку");
-        System.Console.WriteLine("7.  Отменить оценку");
-        System.Console.WriteLine("8.  Оценки студента");
-        System.Console.WriteLine("9.  Итог студента");
-        System.Console.WriteLine("10. Экспорт итога в CSV");
-        System.Console.WriteLine("11. Демо-сценарий");
+        System.Console.WriteLine("2.  Переименовать студента");
+        System.Console.WriteLine("3.  Добавить критерий");
+        System.Console.WriteLine("4.  Изменить критерий");
+        System.Console.WriteLine("5.  Удалить критерий");
+        System.Console.WriteLine("6.  Список студентов");
+        System.Console.WriteLine("7.  Список критериев");
+        System.Console.WriteLine("8.  Выставить оценку");
+        System.Console.WriteLine("9.  Исправить оценку");
+        System.Console.WriteLine("10. Отменить оценку");
+        System.Console.WriteLine("11. Оценки студента");
+        System.Console.WriteLine("12. Итог студента");
+        System.Console.WriteLine("13. Экспорт итога в CSV");
+        System.Console.WriteLine("14. Экспорт итогов всех студентов");
+        System.Console.WriteLine("15. Демо-сценарий");
         System.Console.WriteLine("0.  Выход");
     }
 
@@ -387,5 +395,60 @@ public sealed class ConsoleController
         System.Console.ForegroundColor = ConsoleColor.Red;
         System.Console.WriteLine(message);
         System.Console.ForegroundColor = prev;
+    }
+
+    private async Task RenameStudentAsync()
+    {
+        var student = await SelectStudentAsync();
+        if (student is null) return;
+
+        var newName = ReadOptional("Новое имя");
+        if (newName is null) { PrintCancelled(); return; }
+
+        await _facade.RenameStudentAsync(student.Id, newName);
+        System.Console.WriteLine($"Студент переименован: {newName}");
+    }
+
+    private async Task UpdateCriterionAsync()
+    {
+        var criterion = await SelectCriterionAsync();
+        if (criterion is null) return;
+
+        var newName = ReadOptional("Новое название");
+        if (newName is null) { PrintCancelled(); return; }
+
+        var newMax = ReadOptionalDecimal("Новый максимальный балл");
+        if (newMax is null) { PrintCancelled(); return; }
+        if (newMax.Value <= 0) { WriteError("Максимальный балл должен быть > 0"); return; }
+
+        var newWeight = ReadOptionalDecimal("Новый вес");
+        if (newWeight is null) { PrintCancelled(); return; }
+        if (newWeight.Value <= 0) { WriteError("Вес должен быть > 0"); return; }
+
+        await _facade.UpdateCriterionAsync(criterion.Id, newName, newMax.Value, newWeight.Value);
+        System.Console.WriteLine($"Критерий обновлён: {newName}");
+    }
+
+    private async Task RemoveCriterionAsync()
+    {
+        var criterion = await SelectCriterionAsync();
+        if (criterion is null) return;
+
+        var confirm = ReadOptional($"Удалить критерий «{criterion.Name}»? y/n");
+        if (confirm is not ("y" or "Y")) { PrintCancelled(); return; }
+
+        await _facade.RemoveCriterionAsync(criterion.Id);
+        System.Console.WriteLine($"Критерий удалён: {criterion.Name}");
+    }
+
+    private async Task ExportAllFinalScoresAsync()
+    {
+        var path = ReadOptional("Путь к файлу (например, out/all.csv)");
+        if (path is null) { PrintCancelled(); return; }
+
+        var count = await _facade.ExportAllFinalScoresAsync(path);
+        if (count == 0) { System.Console.WriteLine("Нет студентов для экспорта"); return; }
+
+        System.Console.WriteLine($"Экспортировано {count} итогов → {path}");
     }
 }
