@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TasApp.Tests/TasApp.Tests.csproj" />
+  <Project Path="TasApp/TasApp.csproj" />
+</Solution>
