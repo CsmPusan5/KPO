@@ -5,10 +5,8 @@ using TasApp.Application.Queries;
 
 namespace TasApp.Application.Facades;
 
-/// <summary>
-/// GoF Facade: единая точка сценариев для консоли.
-/// Консоль не знает про use cases, репозитории и DTO-маппинг.
-/// </summary>
+// GoF Facade: консоль работает только с этим классом.
+// Use cases, репозитории и маппинг DTO скрыты.
 public sealed class TasFacade
 {
     private readonly AddStudentUseCase _addStudent;
@@ -46,6 +44,7 @@ public sealed class TasFacade
         _exportFinalScore = exportFinalScore;
     }
 
+    // Наружу отдаётся Guid, а не доменный VO: Facade - граница Application-слоя.
     public async Task<Guid> AddStudentAsync(string name, CancellationToken ct = default)
     {
         var id = await _addStudent.ExecuteAsync(new AddStudentCommand(name), ct);

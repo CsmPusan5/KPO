@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TasApp.Application/TasApp.Application.csproj" />
+    <Project Path="src/TasApp.Console/TasApp.Console.csproj" />
+    <Project Path="src/TasApp.Domain/TasApp.Domain.csproj" />
+    <Project Path="src/TasApp.Infrastructure/TasApp.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TasApp.Tests/TasApp.Tests.csproj" />
+  </Folder>
+</Solution>
