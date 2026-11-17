@@ -36,6 +36,7 @@ public sealed class PercentStrategy : IFinalScoreStrategy
                 numerator += evaluation.Score.Value * weight;
         }
 
+        // Возвращаем 0, чтобы избежать деления на ноль.
         if (denominator == 0m)
             return new FinalScore(0m);
 

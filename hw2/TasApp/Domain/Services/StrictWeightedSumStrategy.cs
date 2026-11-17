@@ -4,9 +4,7 @@ using TasApp.Domain.ValueObjects;
 
 namespace TasApp.Domain.Services;
 
-/// <summary>
-/// Строгий вариант взвешенной суммы: если хотя бы по одному критерию нет оценки, то итог посчитать нельзя.
-/// </summary>
+// Строгий вариант взвешенной суммы: если хотя бы по одному критерию нет оценки, то итог посчитать нельзя.
 public sealed class StrictWeightedSumStrategy : IFinalScoreStrategy
 {
     public string Name => "StrictWeightedSum";

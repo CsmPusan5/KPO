@@ -2,10 +2,6 @@ using TasApp.Domain.ValueObjects;
 
 namespace TasApp.Domain.Entities;
 
-/// <summary>
-/// Критерий — за что ставят балл. Entity внутри агрегата Rubricator.
-/// Создаётся и меняется только через Rubricator (internal).
-/// </summary>
 public sealed class Criterion
 {
     public CriterionId Id { get; }
@@ -13,6 +9,8 @@ public sealed class Criterion
     public MaxScore MaxScore { get; private set; }
     public Weight Weight { get; private set; }
 
+    // internal: Criterion создаётся и изменяется только через Rubricator,
+    // чтобы нельзя было обойти инварианты набора критериев.
     internal Criterion(CriterionId id, CriterionName name, MaxScore maxScore, Weight weight)
     {
         Id = id;

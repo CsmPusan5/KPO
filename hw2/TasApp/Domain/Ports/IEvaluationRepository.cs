@@ -3,6 +3,7 @@ using TasApp.Domain.ValueObjects;
 
 namespace TasApp.Domain.Ports;
 
+// GetByIdAsync возвращает null, если запись не найдена. Существование проверяет use case.
 public interface IEvaluationRepository
 {
     Task AddAsync(Evaluation evaluation, CancellationToken ct = default);

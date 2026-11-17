@@ -3,10 +3,8 @@ using TasApp.Domain.ValueObjects;
 
 namespace TasApp.Domain.Services;
 
-/// <summary>
-/// Взвешенная сумма: для каждого критерия берём score/maxScore (0..1),
-/// умножаем на вес и суммируем. Отсутствующая оценка = 0.
-/// </summary>
+// Взвешенная сумма: для каждого критерия берём score/maxScore (0..1),
+// умножаем на вес и суммируем. Отсутствующая оценка = 0.
 public sealed class WeightedSumStrategy : IFinalScoreStrategy
 {
     public string Name => "WeightedSum";
@@ -18,6 +16,8 @@ public sealed class WeightedSumStrategy : IFinalScoreStrategy
         ArgumentNullException.ThrowIfNull(evaluations);
         ArgumentNullException.ThrowIfNull(rubricator);
 
+        // Уникальность пары (студент, критерий) обеспечивается в use case.
+        // Здесь защита от дублей на случай некорректных данных.
         var byCriterion = evaluations
             .GroupBy(e => e.CriterionId)
             .ToDictionary(g => g.Key, g => g.First());
@@ -27,9 +27,9 @@ public sealed class WeightedSumStrategy : IFinalScoreStrategy
         foreach (var criterion in rubricator.Criteria)
         {
             if (!byCriterion.TryGetValue(criterion.Id, out var evaluation))
-                continue; // отсутствие оценки = 0 вклада
+                continue;
 
-            var normalized = evaluation.Score.Value / criterion.MaxScore.Value; // 0..1
+            var normalized = evaluation.Score.Value / criterion.MaxScore.Value;
             total += normalized * criterion.Weight.Value;
         }
 

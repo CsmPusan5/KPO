@@ -3,10 +3,6 @@ using TasApp.Domain.ValueObjects;
 
 namespace TasApp.Domain.Entities;
 
-/// <summary>
-/// Оценка — факт «этому студенту по этому критерию поставили такой балл».
-/// Aggregate Root. Ссылается на Student и Criterion по Id, не держит их объекты.
-/// </summary>
 public sealed class Evaluation
 {
     public EvaluationId Id { get; }
@@ -32,11 +28,8 @@ public sealed class Evaluation
         Comment = string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
     }
 
-    /// <summary>
-    /// Фабрика
-    /// Проверяет инвариант: score ∈ [0, criterion.MaxScore].
-    /// Критерий передаётся целиком, потому что нужен его MaxScore.
-    /// </summary>
+    // Принимает Criterion, а не CriterionId. Это гарантирует, что критерий был получен из Rubricator.
+    // Здесь же проверяется score <= criterion.MaxScore.
     public static Evaluation Create(
         StudentId studentId,
         Criterion criterion,
@@ -54,7 +47,7 @@ public sealed class Evaluation
             comment);
     }
 
-    /// <summary>Восстановление из хранилища — без валидации (данные уже валидны).</summary>
+    // Восстановление из хранилища (без валидации).
     public static Evaluation Rehydrate(
         EvaluationId id,
         StudentId studentId,
@@ -64,16 +57,13 @@ public sealed class Evaluation
         string? comment)
         => new(id, studentId, criterionId, score, assignedAt, comment);
 
-    /// <summary>
-    /// Исправить балл. MaxScore передаётся снаружи (use case берёт его из актуального Rubricator).
-    /// </summary>
+    // maxScore передаётся параметром: если критерий изменён, проверка идёт по актуальному значению.
     public void ChangeScore(Score newScore, MaxScore maxScore)
     {
         EnsureWithinMaxScore(newScore, maxScore);
         Score = newScore;
     }
 
-    /// <summary>Изменить комментарий.</summary>
     public void ChangeComment(string? comment)
         => Comment = string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
 

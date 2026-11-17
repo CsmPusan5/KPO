@@ -3,19 +3,14 @@ using TasApp.Domain.ValueObjects;
 
 namespace TasApp.Domain.Entities;
 
-/// <summary>
-/// Рубрикатор — набор критериев. Aggregate Root агрегата «Rubricator + Criterion».
-/// </summary>
 public sealed class Rubricator
 {
     private readonly List<Criterion> _criteria = new();
 
     public IReadOnlyList<Criterion> Criteria => _criteria;
 
-    // Конструктор без параметров: пустой рубрикатор — валидное состояние.
     public Rubricator() { }
 
-    /// <summary>Добавить критерий. Возвращает созданный объект.</summary>
     public Criterion AddCriterion(CriterionName name, MaxScore maxScore, Weight weight)
     {
         var criterion = new Criterion(CriterionId.New(), name, maxScore, weight);
@@ -23,7 +18,7 @@ public sealed class Rubricator
         return criterion;
     }
 
-    /// <summary>Получить критерий по Id. Бросает, если его нет.</summary>
+    // Инвариант: оценка ставится только по существующему критерию.
     public Criterion GetCriterion(CriterionId id)
     {
         var criterion = _criteria.FirstOrDefault(c => c.Id == id);
@@ -35,7 +30,7 @@ public sealed class Rubricator
     public bool ContainsCriterion(CriterionId id)
         => _criteria.Any(c => c.Id == id);
 
-    /// <summary>Обновить критерий. Только через корень агрегата.</summary>
+    // Обновить критерий через корень агрегата.
     public void UpdateCriterion(CriterionId id, CriterionName newName, MaxScore newMaxScore, Weight newWeight)
     {
         var criterion = GetCriterion(id);
@@ -44,14 +39,13 @@ public sealed class Rubricator
         criterion.ChangeWeight(newWeight);
     }
 
-    /// <summary>Удалить критерий.</summary>
     public void RemoveCriterion(CriterionId id)
     {
         var criterion = GetCriterion(id);
         _criteria.Remove(criterion);
     }
 
-    /// <summary>Восстановление из хранилища — критерии создаются через internal конструктор.</summary>
+    // Восстановление из хранилища. Наполняет приватный список Criteria в обход публичного API.
     public static Rubricator Rehydrate(IEnumerable<Criterion> criteria)
     {
         var rubricator = new Rubricator();
