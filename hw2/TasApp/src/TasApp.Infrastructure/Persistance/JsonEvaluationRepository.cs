@@ -26,6 +26,14 @@ public sealed class JsonEvaluationRepository : IEvaluationRepository
         return record is null ? null : ToDomain(record);
     }
 
+    public async Task<Evaluation?> FindByStudentAndCriterionAsync(StudentId studentId, CriterionId criterionId, CancellationToken ct = default)
+    {
+        var records = await _store.LoadAsync(ct) ?? new List<EvaluationRecord>();
+        var record = records.FirstOrDefault(r =>
+            r.StudentId == studentId.Value && r.CriterionId == criterionId.Value);
+        return record is null ? null : ToDomain(record);
+    }
+
     public async Task<IReadOnlyList<Evaluation>> ListByStudentAsync(StudentId studentId, CancellationToken ct = default)
     {
         var records = await _store.LoadAsync(ct) ?? new List<EvaluationRecord>();

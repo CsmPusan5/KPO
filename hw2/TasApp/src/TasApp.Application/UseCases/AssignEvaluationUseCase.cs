@@ -30,6 +30,11 @@ public sealed class AssignEvaluationUseCase
         var rubricator = await _rubricators.GetAsync(ct);
         var criterion = rubricator.GetCriterion(new CriterionId(cmd.CriterionId));
 
+        var existing = await _evaluations.FindByStudentAndCriterionAsync(
+            student.Id, criterion.Id, ct);
+        if (existing is not null)
+            throw new DuplicateEvaluationException(cmd.StudentId, cmd.CriterionId);
+
         var evaluation = Evaluation.Create(
             student.Id,
             criterion,

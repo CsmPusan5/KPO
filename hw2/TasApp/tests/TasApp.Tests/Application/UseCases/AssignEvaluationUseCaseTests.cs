@@ -114,4 +114,35 @@ public sealed class AssignEvaluationUseCaseTests
         await act.Should().ThrowAsync<ScoreOutOfRangeException>();
         await evaluations.DidNotReceive().AddAsync(Arg.Any<Evaluation>(), Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task ExecuteAsync_WithDuplicateEvaluation_ShouldThrowDuplicate()
+    {
+        // Arrange
+        var student = Student.Create(new StudentName("Ivan"));
+        var rubricator = new Rubricator();
+        var criterion = rubricator.AddCriterion(
+            new CriterionName("ДЗ"), new MaxScore(10m), new Weight(0.4m));
+        var existing = Evaluation.Create(
+            student.Id, criterion, new Score(5m), DateTimeOffset.UtcNow);
+
+        var students = Substitute.For<IStudentRepository>();
+        var rubricators = Substitute.For<IRubricatorRepository>();
+        var evaluations = Substitute.For<IEvaluationRepository>();
+        students.GetByIdAsync(Arg.Any<StudentId>(), Arg.Any<CancellationToken>()).Returns(student);
+        rubricators.GetAsync(Arg.Any<CancellationToken>()).Returns(rubricator);
+        evaluations.FindByStudentAndCriterionAsync(
+            Arg.Any<StudentId>(), Arg.Any<CriterionId>(), Arg.Any<CancellationToken>())
+            .Returns(existing);
+
+        var sut = new AssignEvaluationUseCase(students, rubricators, evaluations);
+        var cmd = new AssignEvaluationCommand(student.Id.Value, criterion.Id.Value, 8m, null);
+
+        // Act
+        Func<Task> act = async () => await sut.ExecuteAsync(cmd);
+
+        // Assert
+        await act.Should().ThrowAsync<DuplicateEvaluationException>();
+        await evaluations.DidNotReceive().AddAsync(Arg.Any<Evaluation>(), Arg.Any<CancellationToken>());
+    }
 }
