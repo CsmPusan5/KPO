@@ -70,8 +70,8 @@ public sealed class TasFacade
         return id.Value;
     }
 
-    public Task UpdateEvaluationAsync(Guid evaluationId, decimal newScore, string? comment, CancellationToken ct = default)
-        => _updateEvaluation.ExecuteAsync(new UpdateEvaluationCommand(evaluationId, newScore, comment), ct);
+    public Task UpdateEvaluationAsync(Guid evaluationId, decimal? newScore, string? comment, bool changeComment, CancellationToken ct = default)
+        => _updateEvaluation.ExecuteAsync(new UpdateEvaluationCommand(evaluationId, newScore, comment, changeComment), ct);
 
     public Task DeleteEvaluationAsync(Guid evaluationId, CancellationToken ct = default)
         => _deleteEvaluation.ExecuteAsync(evaluationId, ct);
