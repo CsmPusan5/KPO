@@ -23,6 +23,7 @@ public sealed class TasFacade
     private readonly UpdateCriterionUseCase _updateCriterion;
     private readonly RemoveCriterionUseCase _removeCriterion;
     private readonly ExportAllFinalScoresUseCase _exportAll;
+    private readonly SetupRubricatorUseCase _setupRubricator;
 
     public TasFacade(
         AddStudentUseCase addStudent,
@@ -38,7 +39,8 @@ public sealed class TasFacade
         RenameStudentUseCase renameStudentUseCase,
         UpdateCriterionUseCase updateCriterionUseCase,
         RemoveCriterionUseCase removeCriterionUseCase,
-        ExportAllFinalScoresUseCase exportAllFinalScoresUseCase)
+        ExportAllFinalScoresUseCase exportAllFinalScoresUseCase,
+        SetupRubricatorUseCase setupRubricatorUseCase)
     {
         _addStudent = addStudent;
         _addCriterion = addCriterion;
@@ -54,6 +56,7 @@ public sealed class TasFacade
         _updateCriterion = updateCriterionUseCase;
         _removeCriterion = removeCriterionUseCase;
         _exportAll = exportAllFinalScoresUseCase;
+        _setupRubricator = setupRubricatorUseCase;
     }
 
     // Наружу отдаётся Guid, а не доменный VO: Facade - граница Application-слоя.
@@ -108,4 +111,9 @@ public sealed class TasFacade
     
     public Task<int> ExportAllFinalScoresAsync(string filePath, CancellationToken ct = default)
       => _exportAll.ExecuteAsync(filePath, ct);
+
+    public Task<IReadOnlyList<CriterionDto>> SetupRubricatorAsync(
+        IReadOnlyList<SetupCriterionCommand> criteria,
+        CancellationToken ct = default)
+        => _setupRubricator.ExecuteAsync(new SetupRubricatorCommand(criteria), ct);
 }

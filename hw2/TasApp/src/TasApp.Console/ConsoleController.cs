@@ -1,3 +1,4 @@
+using TasApp.Application.Commands;
 using TasApp.Application.Dtos;
 using TasApp.Application.Exceptions;
 using TasApp.Application.Facades;
@@ -40,16 +41,17 @@ public sealed class ConsoleController
                     case "3": await AddCriterionAsync(); break;
                     case "4": await UpdateCriterionAsync(); break;
                     case "5": await RemoveCriterionAsync(); break;
-                    case "6": await ListStudentsAsync(); break;
-                    case "7": await ListCriteriaAsync(); break;
-                    case "8": await AssignEvaluationAsync(); break;
-                    case "9": await UpdateEvaluationAsync(); break;
-                    case "10": await DeleteEvaluationAsync(); break;
-                    case "11": await ListEvaluationsAsync(); break;
-                    case "12": await CalculateFinalScoreAsync(); break;
-                    case "13": await ExportFinalScoreAsync(); break;
-                    case "14": await ExportAllFinalScoresAsync(); break;
-                    case "15": await RunDemoAsync(); break;
+                    case "6": await SetupRubricatorAsync(); break;
+                    case "7": await ListStudentsAsync(); break;
+                    case "8": await ListCriteriaAsync(); break;
+                    case "9": await AssignEvaluationAsync(); break;
+                    case "10": await UpdateEvaluationAsync(); break;
+                    case "11": await DeleteEvaluationAsync(); break;
+                    case "12": await ListEvaluationsAsync(); break;
+                    case "13": await CalculateFinalScoreAsync(); break;
+                    case "14": await ExportFinalScoreAsync(); break;
+                    case "15": await ExportAllFinalScoresAsync(); break;
+                    case "16": await RunDemoAsync(); break;
                     case "0": return;
                     default: WriteError("Неизвестная команда"); break;
                 }
@@ -71,23 +73,22 @@ public sealed class ConsoleController
 
     private static void PrintMenu()
     {
-        System.Console.WriteLine();
-        System.Console.WriteLine("=== ПОС: Преподавательская Оценка Студентов ===");
         System.Console.WriteLine("1.  Добавить студента");
         System.Console.WriteLine("2.  Переименовать студента");
         System.Console.WriteLine("3.  Добавить критерий");
         System.Console.WriteLine("4.  Изменить критерий");
         System.Console.WriteLine("5.  Удалить критерий");
-        System.Console.WriteLine("6.  Список студентов");
-        System.Console.WriteLine("7.  Список критериев");
-        System.Console.WriteLine("8.  Выставить оценку");
-        System.Console.WriteLine("9.  Исправить оценку");
-        System.Console.WriteLine("10. Отменить оценку");
-        System.Console.WriteLine("11. Оценки студента");
-        System.Console.WriteLine("12. Итог студента");
-        System.Console.WriteLine("13. Экспорт итога в CSV");
-        System.Console.WriteLine("14. Экспорт итогов всех студентов");
-        System.Console.WriteLine("15. Демо-сценарий");
+        System.Console.WriteLine("6.  Настроить рубрикатор (заменить целиком)");
+        System.Console.WriteLine("7.  Список студентов");
+        System.Console.WriteLine("8.  Список критериев");
+        System.Console.WriteLine("9.  Выставить оценку");
+        System.Console.WriteLine("10. Исправить оценку");
+        System.Console.WriteLine("11. Отменить оценку");
+        System.Console.WriteLine("12. Оценки студента");
+        System.Console.WriteLine("13. Итог студента");
+        System.Console.WriteLine("14. Экспорт итога в CSV");
+        System.Console.WriteLine("15. Экспорт итогов всех студентов");
+        System.Console.WriteLine("16. Демо-сценарий");
         System.Console.WriteLine("0.  Выход");
     }
 
@@ -260,8 +261,13 @@ public sealed class ConsoleController
         var studentB = await _facade.AddStudentAsync("Пётр");
         System.Console.WriteLine("Студенты: Иван, Пётр");
 
-        var criterionHw = await _facade.AddCriterionAsync("ДЗ", 10m, 0.4m);
-        var criterionExam = await _facade.AddCriterionAsync("Экзамен", 10m, 0.6m);
+        var criteria = await _facade.SetupRubricatorAsync(
+        [
+            new SetupCriterionCommand("ДЗ", 10m, 0.4m),
+            new SetupCriterionCommand("Экзамен", 10m, 0.6m),
+        ]);
+        var criterionHw = criteria.First(c => c.Name == "ДЗ").Id;
+        var criterionExam = criteria.First(c => c.Name == "Экзамен").Id;
         System.Console.WriteLine("Критерии: ДЗ (max=10, w=0.4), Экзамен (max=10, w=0.6)");
 
         await _facade.AssignEvaluationAsync(studentA, criterionHw, 8m, "хорошо");
@@ -448,5 +454,42 @@ public sealed class ConsoleController
         if (count == 0) { System.Console.WriteLine("Нет студентов для экспорта"); return; }
 
         System.Console.WriteLine($"Экспортировано {count} итогов → {path}");
+    }
+
+    private async Task SetupRubricatorAsync()
+    {
+        var existing = await _facade.ListCriteriaAsync();
+        if (existing.Count > 0)
+        {
+            var confirm = ReadOptional($"Заменить текущий рубрикатор ({existing.Count} критериев)? y/n");
+            if (confirm is not ("y" or "Y")) { PrintCancelled(); return; }
+        }
+
+        System.Console.WriteLine("Введите критерии. Пустое название — завершить ввод.");
+        var drafts = new List<SetupCriterionCommand>();
+
+        while (true)
+        {
+            var name = ReadOptional($"Название критерия #{drafts.Count + 1}");
+            if (name is null) break;
+
+            var max = ReadOptionalDecimal("Максимальный балл");
+            if (max is null) break;
+            if (max.Value <= 0) { WriteError("Балл должен быть > 0"); continue; }
+
+            var weight = ReadOptionalDecimal("Вес");
+            if (weight is null) break;
+            if (weight.Value <= 0) { WriteError("Вес должен быть > 0"); continue; }
+
+            drafts.Add(new SetupCriterionCommand(name, max.Value, weight.Value));
+        }
+
+        if (drafts.Count == 0) { System.Console.WriteLine("Рубрикатор не изменён"); return; }
+
+        var created = await _facade.SetupRubricatorAsync(drafts);
+
+        System.Console.WriteLine($"Рубрикатор настроен: {created.Count} критериев");
+        foreach (var c in created)
+            System.Console.WriteLine($"  {c.Name} (max={c.MaxScore}, w={c.Weight})");
     }
 }

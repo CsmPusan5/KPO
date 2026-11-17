@@ -47,6 +47,7 @@ services.AddTransient<RenameStudentUseCase>();
 services.AddTransient<UpdateCriterionUseCase>();
 services.AddTransient<RemoveCriterionUseCase>();
 services.AddTransient<ExportAllFinalScoresUseCase>();
+services.AddTransient<SetupRubricatorUseCase>();
 
 // --- Facade ---
 services.AddTransient<TasFacade>();
